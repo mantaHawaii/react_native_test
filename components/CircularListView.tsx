@@ -1,8 +1,7 @@
 import { CircularViewInfo } from "@/app/(tabs)/custom3";
-import { numberToDeg } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
-import { ReactElement, useRef, useState } from "react";
-import { Button, Dimensions, Image, StyleSheet, Text, TouchableOpacity, View, ViewProps } from "react-native";
+import { ReactElement } from "react";
+import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View, ViewProps } from "react-native";
 import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
 import Animated, { Easing, interpolate, runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
 
@@ -72,7 +71,8 @@ export function CircularListView({data, numItems, getPage, page}:CircularListVie
             let y = startY+d*Math.cos((rotate)*(Math.PI/180));
 
             let scale = interpolate(x, [0, startX, startX*2], [1/2.5, 1, 1/2.5], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
-            let z = interpolate(x, [0, startX, startX*2], [1, 2, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+            let z = interpolate(x, [0, startX, startX*2], [0, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+            z = Math.round(z);
 
             return(
                 {
