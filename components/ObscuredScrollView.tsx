@@ -8,7 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import React, { ReactElement } from 'react';
 import { ObscuredImage } from '@/components/ObscuredImage';
-import { ObsViewInfo } from '@/app/(tabs)/custom';
+import { ObsViewInfo } from '@/app/(tabs)/index';
 
 export type ObscuredScrollViewProps = ViewProps & {
     viewInfoData:ObsViewInfo[];

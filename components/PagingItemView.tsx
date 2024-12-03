@@ -2,7 +2,7 @@ import { PagingViewInfo } from "@/app/(tabs)/custom2";
 import { ReactElement, useEffect, useState } from "react";
 import { Dimensions, StyleSheet, ViewProps, View, Image, Text, PanResponder } from "react-native";
 import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
-import Animated, { interpolate, useAnimatedStyle, useSharedValue, useAnimatedReaction, runOnJS, useAnimatedProps } from "react-native-reanimated";
+import Animated, { interpolate, useAnimatedStyle, useSharedValue, useAnimatedReaction, runOnJS, useAnimatedProps, withTiming, Easing } from "react-native-reanimated";
 import { addAlphaToHex, getComplementaryColor } from "@/utils/helpers";
 
 type PagingListViewProps = ViewProps & {
@@ -20,6 +20,8 @@ export function PagingListView({data, height, onLastItem}:PagingListViewProps) {
         setCurrent(num);
     };
 
+    const slideSpeed = 2.5;
+
     useEffect(()=>{
         offset.value = 0;
         if (current == data.length-3) {
@@ -30,36 +32,64 @@ export function PagingListView({data, height, onLastItem}:PagingListViewProps) {
 
     for (let i = 0; i < 3; i++) {
 
-        let item = data[(2-i)+current] ?? {src:''};
+        let item = data[(i)+current] ?? {src:''};
 
         const animatedStyleOuter = useAnimatedStyle(()=>{
 
             let outerY = 0;
-
+            let vi = true;
+            let z = 0;
+            
             switch (i) {
                 case 0:
-                    outerY = height;
-                    break;
-                case 1:
+                    /*if (offset.value == 0) {
+                        vi = false;
+                        z = 0;
+                    } else {
+                        vi = true;
+                        z = 11;
+                    }*/
                     outerY = interpolate(
                         offset.value,
-                        [-height/2, 0, height/2],
-                        [0, height, height],
-                        { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
-                    );
-                    break;
-                case 2:
-                    outerY = interpolate(
-                        offset.value,
-                        [-height/2, 0, height/2],
+                        [-height/slideSpeed, 0, height/slideSpeed],
                         [0, 0, height],
                         { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
                     );
                     break;
+                
+                case 1:
+                    /*vi = true;
+                    z = 10;*/
+                    outerY = interpolate(
+                        offset.value,
+                        [-height/slideSpeed, 0, height/slideSpeed],
+                        [0, height, height],
+                        { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+                    );
+                    break;
+
+                case 2:
+                    /*if (offset.value == 0) {
+                        vi = false;
+                        z = 0;
+                    } else {
+                        vi = true;
+                        z = 0;
+                    }*/
+                    outerY = height;
+                    break;
+                
+            }
+            
+            if ((i)+current == 0) {
+                vi = false;
+            } else {
+                vi = true;
             }
             return(
                 {   
-                    height: outerY
+                    height: outerY,
+                    display: vi?'flex':'none'
                 }
             );
         });
@@ -75,7 +105,7 @@ export function PagingListView({data, height, onLastItem}:PagingListViewProps) {
                 case 1:
                     textY = interpolate(
                         offset.value,
-                        [-height/2, 0, height/2],
+                        [-height/slideSpeed, 0, height/slideSpeed],
                         [height, 0, 0],
                         { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
                     );
@@ -94,12 +124,6 @@ export function PagingListView({data, height, onLastItem}:PagingListViewProps) {
         });
 
         let fontColor = getComplementaryColor(item.imageInfo.color ?? "#FFFFFF");
-        let isVisible = true;
-        if (item.imageInfo.id == '') {
-            isVisible = false;
-        } else {
-            isVisible = true;
-        }
 
         if (!item.imageInfo.url) {
             item.imageInfo.profile = './assets/react-logo.png';
@@ -109,8 +133,10 @@ export function PagingListView({data, height, onLastItem}:PagingListViewProps) {
             item.imageInfo.profile = './assets/react-logo.png';
         }
 
-        listData.push(<Animated.View key={i} style={[{height:'100%', width:'100%', overflow: 'hidden', position:'absolute'}, animatedStyleOuter, {display:isVisible?'flex':'none'}]}>
-            <Animated.Image
+        let z = 2-i;
+
+        listData.push(<Animated.View key={i} style={[{height:0, width:'100%', overflow: 'hidden', position:'absolute', zIndex:(z), backgroundColor:"#FFF"}, animatedStyleOuter]}>
+            <Image
                 style={[styles.image, {height:height}]}
                 source={{uri:item.imageInfo.url}}
             />
@@ -162,7 +188,7 @@ const styles = StyleSheet.create({
     image:{
         width:'100%',
         height:'100%',
-        resizeMode:'cover',
+        resizeMode:'cover'
     },
     textbox:{
         position:'absolute',

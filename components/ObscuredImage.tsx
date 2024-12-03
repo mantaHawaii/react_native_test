@@ -3,7 +3,7 @@ import Animated from 'react-native-reanimated';
 
 export type ObscuredImageProps = ViewProps & {
     imagePosition?: number;
-    tStyle?: {
+    tStyle: {
       transform: {
           translateY: number;
       }[];
@@ -15,7 +15,6 @@ export type ObscuredImageProps = ViewProps & {
 export function ObscuredImage({style, imagePosition, tStyle, src, flex, ...otherProps}: ObscuredImageProps) {
     imagePosition = imagePosition ?? 0;
     flex = flex ?? 1;
-    tStyle = tStyle ?? {transform:[{translateY:0}]};
     return (
         <View style={[{flex:flex}, styles.container]}>
         <Animated.Image
@@ -38,8 +37,7 @@ const styles = StyleSheet.create({
     image: {
       width: '100%',
       height: '100%',
-      resizeMode:'center',
-      objectFit: 'cover'
+      resizeMode:'cover'
     },
     overlay: {
       position: 'absolute',
