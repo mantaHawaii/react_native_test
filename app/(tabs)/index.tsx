@@ -25,7 +25,6 @@ export type ImageInfo = {
   profile:string,
 };
 
-let isLoading = false;
 //let arr:ViewInfo[] = [];
 //let totalHeight = 0;
 
@@ -34,6 +33,7 @@ export default function CustomScreen() {
   const [childView, setChildView] = useState<ReactElement>();
   const [count, setCount] = useState(1);
   const scale = useSharedValue(0);
+  let isLoading = false;
 
   const { width } = Dimensions.get('window');
 
@@ -67,9 +67,8 @@ export default function CustomScreen() {
     const contentOffsetY = event.nativeEvent.contentOffset.y;
     const layoutHeight = event.nativeEvent.layoutMeasurement.height;
 
-    if (contentHeight - contentOffsetY <= layoutHeight && !isLoading) {
+    if (contentHeight - contentOffsetY - 1 <= layoutHeight && !isLoading) {
       scale.value = withTiming(1, { duration: 250, easing: Easing.elastic(1.2) });
-      console.log('You have reached the bottom!');
       return true;
     } else {
       if (scale.value > 0) {
@@ -110,11 +109,11 @@ export default function CustomScreen() {
       return response.json();
     })
     .then(json => {
-      let arr:ObsViewInfo[] = [];
+      const arr:ObsViewInfo[] = [];
       let totalHeight = 0;
       for (let i = 0; i < json.length; i++) {
-        let item = json[i];
-        let rowHeight = (width/2)*(item.height/item.width);
+        const item = json[i];
+        const rowHeight = (width/2)*(item.height/item.width);
         console.log(item.user.profile_image);
         arr.push({rowHeight:rowHeight, totalHeight:totalHeight, pos:i, imageInfo:{
           id:item.id,

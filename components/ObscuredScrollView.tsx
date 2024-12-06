@@ -27,7 +27,7 @@ export function ObscuredScrollView({viewInfoData, onScroll, scrollToTopFlag}:Obs
       }
     }
 
-    var i = 0;
+    let i = 0;
     for (let info of viewInfoData) {
         const tStyle = useAnimatedStyle(
           ()=>{
@@ -36,8 +36,8 @@ export function ObscuredScrollView({viewInfoData, onScroll, scrollToTopFlag}:Obs
                 {
                     translateY: interpolate(
                       scrollOffset.value,
-                      [info.totalHeight-info.rowHeight, info.totalHeight, info.totalHeight+info.rowHeight],
-                      [0, 0, info.rowHeight/1],
+                      [info.totalHeight, info.totalHeight+info.rowHeight],
+                      [0, info.rowHeight],
                       { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
                     ),
                 }

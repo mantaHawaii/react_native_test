@@ -10,30 +10,39 @@ export type PagingViewInfo = {
   imageInfo:ImageInfo
 }
 
-let arrCustom2:PagingViewInfo[] = [{
-  pos:-1,
-  imageInfo:{
-    id:'',
-    width:0,
-    height:0,
-    color:'#FFFFFF',
-    description:'',
-    user:'',
-    name:'',
-    url:'./assets/react-logo.png',
-    profile:''
-  }
-},];
+const arrCustom2:PagingViewInfo[] = [];
 
 export default function custom2Screen() {
+
+  const defaultInfo = {
+    pos:-1,
+    imageInfo:{
+      id:'',
+      width:0,
+      height:0,
+      color:'#FFFFFF',
+      description:'',
+      user:'',
+      name:'',
+      url:'./assets/react-logo.png',
+      profile:''
+    }
+  };
 
   const [childView, setChildView] = useState<ReactElement>();
   const [page, setPage] = useState<number>(1);
   const { width, height } = Dimensions.get('window');
 
   const getNext = () => {
-    console.log('getNext');
     setPage(page+1);
+  };
+
+  const size = 16;
+
+  if (arrCustom2.length == 0) {
+    for (let i = 0; i < Math.round(size/2); i++) {
+      arrCustom2.push(defaultInfo);
+    };
   };
 
   useEffect(()=>{
@@ -49,7 +58,7 @@ export default function custom2Screen() {
     .then(json => {
       
       for (let i = 0; i < json.length; i++) {
-        let item = json[i];
+        const item = json[i];
         
         arrCustom2.push({
           pos:i,
@@ -66,7 +75,8 @@ export default function custom2Screen() {
           }
         });
       }
-      setChildView(<PagingListView data={arrCustom2} onLastItem={getNext} height={height-TAB_BAR_HEIGHT} />);
+
+      setChildView(<PagingListView data={arrCustom2} onLastItem={getNext} height={height-TAB_BAR_HEIGHT} size={size} />);
     })
     .catch(err => {
       console.log('에러', err);

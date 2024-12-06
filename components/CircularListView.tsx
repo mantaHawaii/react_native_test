@@ -1,6 +1,6 @@
 import { CircularViewInfo } from "@/app/(tabs)/custom3";
 import { Ionicons } from "@expo/vector-icons";
-import { ReactElement } from "react";
+import { ReactElement, useEffect } from "react";
 import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View, ViewProps } from "react-native";
 import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
 import Animated, { Easing, interpolate, runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
@@ -14,9 +14,9 @@ type CircularListViewProps = ViewProps & {
 
 export function CircularListView({data, numItems, getPage, page}:CircularListViewProps) {
 
-    let cardHeight = 375;
-    let cardWidth = 250;
-    let d = 250;
+    const cardHeight = 375;
+    const cardWidth = 250;
+    const d = 250;
 
     const moveX = useSharedValue<number>(0);
     const rotation = useSharedValue<number>(0);
@@ -24,14 +24,14 @@ export function CircularListView({data, numItems, getPage, page}:CircularListVie
     //const currentRef = useRef(0);
     //const movedRef = useRef(0);
     const { width, height } = Dimensions.get('window');
-    let listData:ReactElement[] = [];
-    let textList:ReactElement[] = [];
-    let itemRots:number[] = [];
+    const listData:ReactElement[] = [];
+    const textList:ReactElement[] = [];
+    const itemRots:number[] = [];
 
-    let startX = width/2-cardWidth/2;
-    let startY = -d/1.1;
+    const startX = width/2-cardWidth/2;
+    const startY = -d/1.1;
     
-    let speed = width*200;
+    const speed = width*200;
 
     const mergeCards = (num:number) => {
         moveX.value = withTiming(0, {duration:500, easing:Easing.linear});
@@ -47,18 +47,21 @@ export function CircularListView({data, numItems, getPage, page}:CircularListVie
             easing: Easing.exp,
           });
     };
-    if (page > 0) {
-        spreadCards();
-    }
+
+    useEffect(()=>{
+        if (page > 0) {
+            spreadCards();
+        };
+    }, [page]);
 
     for (let i = 0; i < numItems; i++) {
 
         itemRots.push((360/numItems)*i);
 
-        let item = data[i];
+        const item = data[i];
 
         const animatedImageStyle = useAnimatedStyle(()=>{
-            let zeroRo = (360/numItems)*i;
+            const zeroRo = (360/numItems)*i;
             let rotate = interpolate(
                 moveX.value,
                 [-speed, 0, speed],
@@ -67,10 +70,10 @@ export function CircularListView({data, numItems, getPage, page}:CircularListVie
 
             rotate = rotate-rotation.value*zeroRo;
 
-            let x = startX+d*Math.sin((rotate)*(Math.PI/180));
-            let y = startY+d*Math.cos((rotate)*(Math.PI/180));
+            const x = startX+d*Math.sin((rotate)*(Math.PI/180));
+            const y = startY+d*Math.cos((rotate)*(Math.PI/180));
 
-            let scale = interpolate(x, [0, startX, startX*2], [1/2.5, 1, 1/2.5], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+            const scale = interpolate(x, [0, startX, startX*2], [1/2.5, 1, 1/2.5], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
             let z = interpolate(x, [0, startX, startX*2], [0, 1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
             z = Math.round(z);
 
@@ -93,17 +96,13 @@ export function CircularListView({data, numItems, getPage, page}:CircularListVie
 
         const animatedTextStyle = useAnimatedStyle(()=>{
 
-            let x = moveX.value%speed;
+            const x = moveX.value%speed;
 
-            let factor = speed/numItems;
+            const factor = speed/numItems;
             let pos = 0+width*i;
 
-            let next = -i+1;
-            let previous = -i-1;
-
-            //-9000 9000
-            //0 9000 18000 i=7 p:9000*0(data.length-i-1)) c:9000*1(data.length-i) n:9000*2
-            //9000 18000 27000 i=6
+            const next = -i+1;
+            const previous = -i-1;
 
             if ((x>factor*previous&&x<factor*next)) {
                 pos = interpolate(
@@ -132,8 +131,6 @@ export function CircularListView({data, numItems, getPage, page}:CircularListVie
             } else {
                 pos = width;
             }
-
-            //console.log('i =', i, ',', 'X =', x, ',',  'PRE =', factor*previous, ',',  'NEXT =', factor*next);
             
             return(
                 {
@@ -172,10 +169,10 @@ export function CircularListView({data, numItems, getPage, page}:CircularListVie
             moveX.value += event.velocityX;
         })
         .onFinalize((event)=>{
-            let dividend = moveX.value;
-            let divisor = speed/numItems;
-            let halfDivisor = divisor/2;
-            let r = dividend%divisor;
+            const dividend = moveX.value;
+            const divisor = speed/numItems;
+            const halfDivisor = divisor/2;
+            const r = dividend%divisor;
             let toValue = moveX.value;
             if (Math.abs(r) >= halfDivisor) {
                 toValue = moveX.value+((moveX.value/Math.abs(moveX.value))*(divisor)-r);

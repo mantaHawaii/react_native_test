@@ -12,11 +12,11 @@ export type ObscuredImageProps = ViewProps & {
     flex?:number;
 };
 
-export function ObscuredImage({style, imagePosition, tStyle, src, flex, ...otherProps}: ObscuredImageProps) {
+export function ObscuredImage({imagePosition, tStyle, src, flex}: ObscuredImageProps) {
     imagePosition = imagePosition ?? 0;
     flex = flex ?? 1;
     return (
-        <View style={[{flex:flex}, styles.container]}>
+        <Animated.View style={[{flex:flex}, styles.container]}>
         <Animated.Image
           style={[styles.image, tStyle]}
           source={{uri:src}} />
@@ -26,7 +26,7 @@ export function ObscuredImage({style, imagePosition, tStyle, src, flex, ...other
         <View
           style={[styles.overlay, {bottom: 0}]}
         />
-      </View>
+      </Animated.View>
     );
 }
 
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     image: {
       width: '100%',
       height: '100%',
-      resizeMode:'cover'
+      resizeMode:'cover',
     },
     overlay: {
       position: 'absolute',

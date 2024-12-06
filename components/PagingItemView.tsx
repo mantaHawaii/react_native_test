@@ -9,46 +9,58 @@ type PagingListViewProps = ViewProps & {
     data:PagingViewInfo[];
     height:number;
     onLastItem:()=>void;
+    size:number;
 };
 
-export function PagingListView({data, height, onLastItem}:PagingListViewProps) {
-    const offset = useSharedValue<number>(0);
+export function PagingListView({data, height, onLastItem, size}:PagingListViewProps) {
+
+    console.log(data.length);
+    console.log('List rendered');
+
+    const slideSpeed = 2;
+    const start = Math.round(size/2);
+    const offset = useSharedValue<number>((-height/slideSpeed)*(start));
     const listData:ReactElement[] = [];
     const [current, setCurrent]= useState<number>(0);
 
     const goNext = (num:number) => {
         setCurrent(num);
     };
-
-    const slideSpeed = 2.5;
-
+    
     useEffect(()=>{
-        offset.value = 0;
-        if (current == data.length-3) {
+        offset.value = (-height/slideSpeed)*(start);
+        if (current >= data.length-(start*3)) {
             console.log('onLastItem', current, data.length);
             onLastItem();
         }
     }, [current]);
 
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < size; i++) {
 
-        let item = data[(i)+current] ?? {src:''};
+        const item = data[(i)+current];
 
         const animatedStyleOuter = useAnimatedStyle(()=>{
 
             let outerY = 0;
             let vi = true;
-            let z = 0;
-            
+
+            outerY = interpolate(
+                offset.value,
+                [(-height/slideSpeed)*(i), (-height/slideSpeed)*(i+1)],
+                [height, 0],
+                { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+            );
+
+            /*
             switch (i) {
                 case 0:
-                    /*if (offset.value == 0) {
+                    if (offset.value == 0) {
                         vi = false;
                         z = 0;
                     } else {
                         vi = true;
                         z = 11;
-                    }*/
+                    }
                     outerY = interpolate(
                         offset.value,
                         [-height/slideSpeed, 0, height/slideSpeed],
@@ -58,8 +70,8 @@ export function PagingListView({data, height, onLastItem}:PagingListViewProps) {
                     break;
                 
                 case 1:
-                    /*vi = true;
-                    z = 10;*/
+                    vi = true;
+                    z = 10;
                     outerY = interpolate(
                         offset.value,
                         [-height/slideSpeed, 0, height/slideSpeed],
@@ -69,19 +81,20 @@ export function PagingListView({data, height, onLastItem}:PagingListViewProps) {
                     break;
 
                 case 2:
-                    /*if (offset.value == 0) {
+                    if (offset.value == 0) {
                         vi = false;
                         z = 0;
                     } else {
                         vi = true;
                         z = 0;
-                    }*/
+                    }
                     outerY = height;
                     break;
                 
             }
+            */
             
-            if ((i)+current == 0) {
+            if ((i)+current < start) {
                 vi = false;
             } else {
                 vi = true;
@@ -98,7 +111,7 @@ export function PagingListView({data, height, onLastItem}:PagingListViewProps) {
 
             let textY = 0;
 
-            switch (i) {
+            /*switch (i) {
                 case 0:
                     textY = 0;
                     break;
@@ -113,7 +126,15 @@ export function PagingListView({data, height, onLastItem}:PagingListViewProps) {
                 case 2:
                     textY = 0;
                     break;
-            }
+            }*/
+
+            textY = interpolate(
+                offset.value,
+                [(-height/slideSpeed)*(i), (-height/slideSpeed)*(i+1)],
+                [0, height],
+                { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
+            );
+            
             return(
                 {   
                     transform:[
@@ -123,7 +144,7 @@ export function PagingListView({data, height, onLastItem}:PagingListViewProps) {
             );
         });
 
-        let fontColor = getComplementaryColor(item.imageInfo.color ?? "#FFFFFF");
+        const fontColor = getComplementaryColor(item.imageInfo.color ?? "#FFFFFF");
 
         if (!item.imageInfo.url) {
             item.imageInfo.profile = './assets/react-logo.png';
@@ -133,7 +154,7 @@ export function PagingListView({data, height, onLastItem}:PagingListViewProps) {
             item.imageInfo.profile = './assets/react-logo.png';
         }
 
-        let z = 2-i;
+        const z = size-i;
 
         listData.push(<Animated.View key={i} style={[{height:0, width:'100%', overflow: 'hidden', position:'absolute', zIndex:(z), backgroundColor:"#FFF"}, animatedStyleOuter]}>
             <Image
@@ -153,23 +174,31 @@ export function PagingListView({data, height, onLastItem}:PagingListViewProps) {
         })
         .onChange((event) => {
             offset.value += event.changeY;
-            if (offset.value < -height/2) {
-                offset.value = -height/2;
-            }
-            if (offset.value > height/2) {
-                offset.value = height/2;
-            }
-            if (current == 0 && offset.value > 0) {
+            if (offset.value < (-height/slideSpeed)*(size-1)) {
+                offset.value = (-height/slideSpeed)*(size-1);
+                runOnJS(goNext)(current+start-1);
+            };
+            if (offset.value > 0) {
                 offset.value = 0;
-            }
+                if (current >= start) {
+                    runOnJS(goNext)(current-start);
+                };
+            };
+            /*if (current == 0 && offset.value > 0) {
+                offset.value = 0;
+            }/
         })
         .onFinalize((event)=>{
-            if (offset.value == -height/2) {
-                runOnJS(goNext)(current+1);
+            /*if (offset.value == -height/slideSpeed) {
+                count.value = count.value+1;
+                if (count.value > 9) {
+                    count.value = 0;
+                    runOnJS(goNext)(current+1);
+                };
             }
-            if (offset.value == height/2) {
+            if (offset.value == height/slideSpeed) {
                 runOnJS(goNext)(current-1);
-            }
+            }*/
         });
     
     
