@@ -167,6 +167,12 @@ export function CircularListView({data, numItems, getPage, page}:CircularListVie
         })
         .onChange((event) => {
             moveX.value += event.velocityX;
+            if (moveX.value >= speed) {
+                moveX.value = moveX.value-speed;
+            };
+            if (moveX.value <= -speed) {
+                moveX.value = moveX.value+speed;
+            };
         })
         .onFinalize((event)=>{
             const dividend = moveX.value;
